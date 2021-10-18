@@ -3,8 +3,6 @@ package com.jwt.jwtTest.api;
 import com.jwt.jwtTest.domain.Role;
 import com.jwt.jwtTest.domain.Userr;
 import com.jwt.jwtTest.service.UserService;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,9 +11,13 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api") @RequiredArgsConstructor
+@RequestMapping("/api")
 public class UserController {
     private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/users")
     public ResponseEntity<List<Userr>> getUsers() {
@@ -42,8 +44,22 @@ public class UserController {
 
 }
 
-@Data
 class RoleToUserForm {
     private String username;
     private String roleName;
+
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public String getRoleName() {
+        return roleName;
+    }
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
+
+
 }
