@@ -4,7 +4,6 @@ import com.jwt.jwtTest.domain.Role;
 import com.jwt.jwtTest.domain.Userr;
 import com.jwt.jwtTest.repo.RoleRepo;
 import com.jwt.jwtTest.repo.UserRepo;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

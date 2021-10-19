@@ -1,11 +1,8 @@
 package com.jwt.jwtTest.filter;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -20,54 +17,42 @@ import com.jwt.jwtTest.domain.Userr;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class CustomAutheticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
+    public static final String TOKEN_SENHA = "463408a1-54c9-4307-bb1c-6cced559f5a7";
 
     public CustomAutheticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws org.springframework.security.core.AuthenticationException{
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        //Logger.info("Username is: {}", username);
-        //log.info("Password is: {}", password);
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-        return authenticationManager.authenticate(authenticationToken);
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws org.springframework.security.core.AuthenticationException {
+        try {
+            Userr user = new ObjectMapper().readValue(request.getInputStream(), Userr.class);
+            return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                user.getUsername(),
+                user.getPassword(),
+                new ArrayList<>()
+            ));
+        } catch (IOException e) {
+            throw new RuntimeException("Falha ao autenticar", e);
+        }
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException, ServletException {
         User user = (User)authentication.getPrincipal();
-        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        
         String access_token = JWT.create()
             .withSubject(user.getUsername())
             .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000)
             )
-            .withIssuer(request.getRequestURL().toString())
-            .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-            .sign(algorithm);
+            .sign(Algorithm.HMAC512(TOKEN_SENHA));
 
-        String refresh_token = JWT.create()
-            .withSubject(user.getUsername())
-            .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000)
-            )
-            .withIssuer(request.getRequestURL().toString())
-            .sign(algorithm);
-        /*response.setHeader("access_token", access_token);
-        response.setHeader("refresh_token", refresh_token);*/
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("access_token", access_token);
-        tokens.put("refresh_token", refresh_token);
-        response.setContentType(APPLICATION_JSON_VALUE);
-        new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+        response.getWriter().write(access_token);
+        response.getWriter().flush();
     }
 }
