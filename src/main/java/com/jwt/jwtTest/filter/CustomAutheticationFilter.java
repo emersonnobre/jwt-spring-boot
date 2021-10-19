@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+// Manage the login logic: localhost:8080/login
 public class CustomAutheticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     public static final String TOKEN_SENHA = "463408a1-54c9-4307-bb1c-6cced559f5a7";

@@ -20,8 +20,6 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
-@Transactional
-@Slf4j
 public class UserServiceImplementation implements UserService, UserDetailsService {
     private final UserRepo userRepo;
     private final RoleRepo roleRepo;
@@ -37,11 +35,9 @@ public class UserServiceImplementation implements UserService, UserDetailsServic
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Userr user = userRepo.findByUsername(username);
         if(user == null) {
-            //log.error("User not found in the database");
             throw new UsernameNotFoundException("User not found in the database");
-        } else {
-            //log.info("User found in the database: {}", username);
         }
+
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         user.getRoles().forEach(role -> { 
             authorities.add(new SimpleGrantedAuthority(role.getName()));
@@ -51,14 +47,12 @@ public class UserServiceImplementation implements UserService, UserDetailsServic
 
     @Override
     public Userr saveUser(Userr user) {
-        //log.info("Saving the new user {} to the database", user.getName());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepo.save(user);
     }
 
     @Override
     public Role saveRole(Role role) {
-        //log.info("Saving the new role {} to the database", role.getName());
         return roleRepo.save(role);
     }
 
@@ -71,13 +65,11 @@ public class UserServiceImplementation implements UserService, UserDetailsServic
 
     @Override
     public Userr getUser(String username) {
-        //log.info("Fetching user: {}", username);
         return userRepo.findByUsername(username);
     }
 
     @Override
     public List<Userr> getUsers() {
-        //log.info("Fetching all the users");
         return userRepo.findAll();
     }
 

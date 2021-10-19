@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+// Manage de token receive.
 public class JwtValidationFilter extends BasicAuthenticationFilter {
     public static final String HEADER = "Authorization";
     public static final String PREFIX = "Bearer ";
